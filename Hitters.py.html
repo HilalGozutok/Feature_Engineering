@@ -1,0 +1,138 @@
+<html>
+<head>
+<title>Hitters.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #808080;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #6a8759;}
+.s4 { color: #6897bb;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Hitters.py</font>
+</center></td></tr></table>
+<pre><span class="s0">#############################################</span>
+<span class="s0"># FEATURE ENGINEERING &amp; DATA PRE-PROCESSING</span>
+<span class="s0">#############################################</span>
+<span class="s0">#############################################</span>
+<span class="s0">#  HITTERS: END TO END APPLICATION</span>
+<span class="s0">#############################################</span>
+<span class="s0"># AtBat: Number of times at bat in 1986</span>
+<span class="s0"># Hits: Number of hits in 1986</span>
+<span class="s0"># HmRun: Number of home runs in 1986</span>
+<span class="s0"># Runs: Number of runs in 1986</span>
+<span class="s0"># RBI: Number of runs batted in in 1986</span>
+<span class="s0"># Walks: Number of walks in 1986</span>
+<span class="s0"># PutOuts: Number of put outs in 1986</span>
+<span class="s0"># Assists: Number of assists in 1986</span>
+<span class="s0"># Errors: Number of errors in 1986</span>
+<span class="s0"># CAtBat: Number of times at bat during his career</span>
+<span class="s0"># CHits: Number of hits during his career</span>
+<span class="s0"># CHmRun: Number of home runs during his career</span>
+<span class="s0"># CRuns: Number of runs during his career</span>
+<span class="s0"># CRBI: Number of runs batted in during his career</span>
+<span class="s0"># CWalks: Number of walks during his career</span>
+<span class="s0"># Years:Number of years in the major leagues</span>
+<span class="s0"># League: A factor with levels A and N indicating player's league at the end of 1986</span>
+<span class="s0"># Division: A factor with levels E and W indicating player's division at the end of 1986</span>
+<span class="s0"># NewLeague: A factor with levels A and N indicating player's league at the beginning of 1987</span>
+<span class="s0"># Salary: 1987 annual salary on opening day in thousands of dollars</span>
+
+<span class="s2">import </span><span class="s1">seaborn </span><span class="s2">as </span><span class="s1">sns</span>
+<span class="s2">import </span><span class="s1">numpy </span><span class="s2">as </span><span class="s1">np</span>
+<span class="s2">import </span><span class="s1">pandas </span><span class="s2">as </span><span class="s1">pd</span>
+<span class="s2">from </span><span class="s1">helpers.data_prep </span><span class="s2">import </span><span class="s1">*</span>
+<span class="s2">from </span><span class="s1">helpers.eda </span><span class="s2">import </span><span class="s1">*</span>
+
+<span class="s1">pd.pandas.set_option(</span><span class="s3">'display.max_columns'</span><span class="s2">, None</span><span class="s1">)</span>
+<span class="s1">pd.set_option(</span><span class="s3">'display.float_format'</span><span class="s2">, lambda </span><span class="s1">x: </span><span class="s3">'%.3f' </span><span class="s1">% x)</span>
+<span class="s1">pd.set_option(</span><span class="s3">'display.width'</span><span class="s2">, </span><span class="s4">170</span><span class="s1">)</span>
+
+<span class="s1">df = pd.read_csv(</span><span class="s3">r'C:\Users\LENOVO\PycharmProjects\DSMLBC4\HAFTA_07\hitters.csv'</span><span class="s1">)</span>
+<span class="s1">df.info</span>
+<span class="s1">df.describe().T</span>
+<span class="s1">check_df(df)</span>
+<span class="s0">#Salary değişkeninde 59 adet NA değer var. Eksik değerler median ile dolduruldu.</span>
+
+<span class="s1">df[</span><span class="s3">&quot;Salary&quot;</span><span class="s1">] = df[</span><span class="s3">&quot;Salary&quot;</span><span class="s1">].fillna(df[</span><span class="s3">'Salary'</span><span class="s1">].median())</span>
+<span class="s1">check_df(df)</span>
+<span class="s1">df.dropna(inplace=</span><span class="s2">True</span><span class="s1">)</span>
+<span class="s1">df.info()</span>
+<span class="s1">df.shape </span><span class="s0">#(322,20)</span>
+
+<span class="s0">#######################</span>
+<span class="s0"># 1. FEATURE ENGINEERING</span>
+<span class="s0">#############################################</span>
+<span class="s1">df[</span><span class="s3">&quot;Hit_seg&quot;</span><span class="s1">] = pd.qcut(df[</span><span class="s3">'Hits'</span><span class="s1">]</span><span class="s2">, </span><span class="s4">4</span><span class="s2">, </span><span class="s1">labels=[</span><span class="s3">'D'</span><span class="s2">,</span><span class="s3">'C'</span><span class="s2">,</span><span class="s3">'B'</span><span class="s2">,</span><span class="s3">'A'</span><span class="s1">])</span>
+
+
+<span class="s1">df[</span><span class="s3">'HitRatio'</span><span class="s1">] = df[</span><span class="s3">'Hits'</span><span class="s1">] / df[</span><span class="s3">'AtBat'</span><span class="s1">]</span>
+
+<span class="s1">df[</span><span class="s3">'RunRatio'</span><span class="s1">] = df[</span><span class="s3">'HmRun'</span><span class="s1">] / df[</span><span class="s3">'Runs'</span><span class="s1">]</span>
+
+<span class="s1">df[</span><span class="s3">'CHitRatio'</span><span class="s1">] = df[</span><span class="s3">'CHits'</span><span class="s1">] / df[</span><span class="s3">'CAtBat'</span><span class="s1">]</span>
+
+<span class="s1">df[</span><span class="s3">'CRunRatio'</span><span class="s1">] = df[</span><span class="s3">'CHmRun'</span><span class="s1">] / df[</span><span class="s3">'CRuns'</span><span class="s1">]</span>
+
+<span class="s0"># Average of numerical features</span>
+<span class="s1">df[</span><span class="s3">'Avg_AtBat'</span><span class="s1">] = df[</span><span class="s3">'CAtBat'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_Hits'</span><span class="s1">] = df[</span><span class="s3">'CHits'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_HmRun'</span><span class="s1">] = df[</span><span class="s3">'CHmRun'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_Runs'</span><span class="s1">] = df[</span><span class="s3">'CRuns'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_RBI'</span><span class="s1">] = df[</span><span class="s3">'CRBI'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_Walks'</span><span class="s1">] = df[</span><span class="s3">'CWalks'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_PutOuts'</span><span class="s1">] = df[</span><span class="s3">'PutOuts'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_Assists'</span><span class="s1">] = df[</span><span class="s3">'Assists'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_Errors'</span><span class="s1">] = df[</span><span class="s3">'Errors'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+<span class="s1">df[</span><span class="s3">'Avg_Salary'</span><span class="s1">] = df[</span><span class="s3">'Salary'</span><span class="s1">] / df[</span><span class="s3">'Years'</span><span class="s1">]</span>
+
+
+<span class="s1">df.loc[(df[</span><span class="s3">'Years'</span><span class="s1">] &lt;= </span><span class="s4">5</span><span class="s1">)</span><span class="s2">, </span><span class="s3">'EXPERIENCE'</span><span class="s1">] = </span><span class="s3">'Noob'</span>
+<span class="s1">df.loc[(df[</span><span class="s3">'Years'</span><span class="s1">] &gt; </span><span class="s4">5</span><span class="s1">) &amp; (df[</span><span class="s3">'Years'</span><span class="s1">] &lt;= </span><span class="s4">10</span><span class="s1">)</span><span class="s2">, </span><span class="s3">'EXPERIENCE'</span><span class="s1">] = </span><span class="s3">'Incipient'</span>
+<span class="s1">df.loc[(df[</span><span class="s3">'Years'</span><span class="s1">] &gt; </span><span class="s4">10</span><span class="s1">) &amp; (df[</span><span class="s3">'Years'</span><span class="s1">] &lt;= </span><span class="s4">15</span><span class="s1">)</span><span class="s2">, </span><span class="s3">'EXPERIENCE'</span><span class="s1">] = </span><span class="s3">'Average'</span>
+<span class="s1">df.loc[(df[</span><span class="s3">'Years'</span><span class="s1">] &gt; </span><span class="s4">15</span><span class="s1">) &amp; (df[</span><span class="s3">'Years'</span><span class="s1">] &lt;= </span><span class="s4">20</span><span class="s1">)</span><span class="s2">, </span><span class="s3">'EXPERIENCE'</span><span class="s1">] = </span><span class="s3">'Experienced'</span>
+<span class="s1">df.loc[(df[</span><span class="s3">'Years'</span><span class="s1">] &gt; </span><span class="s4">25</span><span class="s1">)</span><span class="s2">, </span><span class="s3">'EXPERIENCE'</span><span class="s1">] = </span><span class="s3">'Senior'</span>
+
+<span class="s1">dff = df.copy()</span>
+<span class="s1">dff.head()</span>
+<span class="s1">dff = df.drop([</span><span class="s3">'AtBat'</span><span class="s2">,</span><span class="s3">'Hits'</span><span class="s2">,</span><span class="s3">'HmRun'</span><span class="s2">,</span><span class="s3">'Salary'</span><span class="s2">,</span><span class="s3">'Runs'</span><span class="s2">,</span><span class="s3">'RBI'</span><span class="s1">]</span><span class="s2">, </span><span class="s1">axis = </span><span class="s4">1</span><span class="s1">)</span>
+
+<span class="s0">######################</span>
+<span class="s0"># OUTLIERS</span>
+<span class="s0">######################</span>
+<span class="s1">num_cols = [col </span><span class="s2">for </span><span class="s1">col </span><span class="s2">in </span><span class="s1">dff.columns </span><span class="s2">if </span><span class="s1">len(dff[col].unique()) &gt; </span><span class="s4">20 </span><span class="s2">and </span><span class="s1">dff[col].dtypes != </span><span class="s3">'O'</span><span class="s1">]</span>
+
+<span class="s2">for </span><span class="s1">col </span><span class="s2">in </span><span class="s1">num_cols:</span>
+    <span class="s1">replace_with_thresholds(dff</span><span class="s2">,</span><span class="s1">col)</span>
+
+<span class="s1">dff.shape</span>
+<span class="s0">#(322,30)</span>
+
+<span class="s0">######################</span>
+<span class="s0"># LABEL ENCODING</span>
+<span class="s0">######################</span>
+
+<span class="s1">binary_cols = [col </span><span class="s2">for </span><span class="s1">col </span><span class="s2">in </span><span class="s1">df.columns </span><span class="s2">if </span><span class="s1">len(df[col].unique()) == </span><span class="s4">2 </span><span class="s2">and </span><span class="s1">df[col].dtypes == </span><span class="s3">'O'</span><span class="s1">]</span>
+
+<span class="s2">for </span><span class="s1">col </span><span class="s2">in </span><span class="s1">binary_cols:</span>
+    <span class="s1">dff = label_encoder(dff</span><span class="s2">, </span><span class="s1">col)</span>
+    
+<span class="s0">########################</span>
+<span class="s0"># ONE HOT ENCODING</span>
+<span class="s0">########################</span>
+
+<span class="s1">ohe_cols = [col </span><span class="s2">for </span><span class="s1">col </span><span class="s2">in </span><span class="s1">df.columns </span><span class="s2">if </span><span class="s4">10 </span><span class="s1">&gt;= len(df[col].unique()) &gt; </span><span class="s4">2</span><span class="s1">]</span>
+<span class="s1">df = one_hot_encoder(df</span><span class="s2">, </span><span class="s1">ohe_cols)</span>
+<span class="s1">df.columns = [col.upper() </span><span class="s2">for </span><span class="s1">col </span><span class="s2">in </span><span class="s1">df.columns]</span>
+
+<span class="s1">check_df(df)</span>
+<span class="s1">df.describe().T</span>
+<span class="s1">df.shape</span>
+<span class="s0">#(322, 42)</span></pre>
+</body>
+</html>
